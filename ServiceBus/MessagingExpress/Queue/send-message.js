@@ -7,14 +7,14 @@ const sender = sbClient.createSender(queueName);
 
 async function sendMessage(){
 
-    // create a batch of messages
+    // create an array of messages
     const messages = [
         {body: "Hello, this is first message."},
         {body: "Hi, this is second message."}
     ];
 
-    // send a message as batch
-    await sender.sendMessage(messages);
+    // send messages - individual messages will be created in queue.
+    await sender.sendMessages(messages);
 }
 
 sendMessage()
