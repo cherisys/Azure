@@ -1,18 +1,18 @@
 1. Create a Service Bus
 2. Choose Standard or higher plan if you want to use Topics (pub/sub).
 3. Create Queue
-    > a. Max Queue Limit
-    > b. Max Delivery Count
-    > c. Message Time to Live
-    > d. Lock Duration
+    > 1. Max Queue Limit
+    > 2. Max Delivery Count
+    > 3. Message Time to Live
+    > 4. Lock Duration
 4. Obtain Connection String
-    > a. Go to Service Bus Page
-    > b. Create Shared Access Policy
-    > c. Copy Primary Connection String
+    > 1. Go to Service Bus Page
+    > 2. Create Shared Access Policy
+    > 3. Copy Primary Connection String
 5. Install Packages
-    > a. @azure/service-bus
-    > b. @azure/identity
+    > 1. @azure/service-bus
+    > 2. @azure/identity
 6. To See Messages in Queue
-    > a. Go to Service Bus Page
-    > b. Go to Queue Page
-    > c. Open Service Bus Explorer
+    > 1. Go to Service Bus Page
+    > 2. Go to Queue Page
+    > 3. Open Service Bus Explorer
