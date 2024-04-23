@@ -8,7 +8,7 @@ async function sendMessage(queueName){
     {
         const sender = serviceBusClient.createSender(queueName);
         const message = {
-            body: "Hello, from Node to Topic.", 
+            body: "Hello, from Node to Queue.", 
             label: "greeting", 
             useProperties: { priority: 1}
         };
