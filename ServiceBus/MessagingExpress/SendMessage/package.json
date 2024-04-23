@@ -1,0 +1,15 @@
+{
+  "name": "sendmessage",
+  "version": "1.0.0",
+  "description": "Sending message to Azure Service Bus.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mohd Arshad",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/identity": "^4.1.0",
+    "@azure/service-bus": "^7.9.4"
+  }
+}
