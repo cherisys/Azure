@@ -1,44 +1,64 @@
-const {ServiceBusClient} = require("@azure/service-bus");
+const { ServiceBusClient } = require("@azure/service-bus");
+
 const connectionString = ""
+const serviceBusClient = new ServiceBusClient(connectionString);
 
-const queueName = "queue001";
-const sbClient = new ServiceBusClient(connectionString);
-const sender = sbClient.createSender(queueName);
+async function sendMessageBatch(queueName){
+    try
+    {
+        const sender = serviceBusClient.createSender(queueName);
+        
+        const messages = [];
+        for (let i = 0; i<=10; i++){
+            const message = {
+                body: `Hello world ${i}.`, 
+                label: "greeting", 
+                useProperties: { priority: 1}
+            };
 
-async function sendBatchMessages(){
+            messages.push(message);
+        }
 
-    let batch = await sender.createMessageBatch();
+        // create message batch
+        let messageBatch = await sender.createMessageBatch();
 
-    for(let i=1; i<=10; i++){
+        // loop throught the messages array and try to add to batch
+        for (let i=0; i<messages.length; i++){
 
-        let message = {body: `Hello world ${i}`, label: 'greeting'};
+            // try adding message
+            const isAdded = messageBatch.tryAddMessage(messages[i]);
 
-        // try to add message to batch
-        if(!batch.tryAddMessage(message)){
+            // if not added, it means:
+            // - message size exceeds maximum size allowed by AMQP protocol (256KB)
+            // - message batch is full and exceeding maximum size allowed by AMQP protocol
+            if(!isAdded) {
+                // send this batch
+                await sender.sendMessages(messageBatch);
 
-            // if it fails, send current batch as it is full
-            await sender.sendMessages(batch);
-            batch = await sender.createMessageBatch();
+                //create new batch
+                messageBatch = await sender.createMessageBatch();
 
-            // add message failed earlier to this new batch
-            if(!batch.try.tryAddMessage(message)){
-                // if it still fails, throw error
-                throw new Error("Something went wrong.")
+                const isAddedNow = messageBatch.tryAddMessage(messages[i]);
+                if(!isAddedNow) {
+                    throw new Error("Something went wrong!");
+                }
+                
             }
         }
-    }
 
-    // send any remaining messages in batch
-    await sender.sendMessages(batch);
+        //send any remaning messages in last created or partially filled up batch
+        if(messageBatch.count > 0) {
+            await sender.sendMessages(messageBatch);
+        }
+
+        await sender.close();
+    }
+    catch(err){
+        console.log(err);
+    }
+    finally {
+        await serviceBusClient.close();
+    }
 }
 
-sendBatchMessage()
-    .then(() => {
-        return sender.close();
-    })
-    .then(() => {
-        return sbClient.close();
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+await sendMessageBatch("queue001");
