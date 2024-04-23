@@ -1,29 +1,28 @@
-const {ServiceBusClient} = require("@azure/service-bus");
+const { ServiceBusClient } = require("@azure/service-bus");
+
 const connectionString = ""
+const serviceBusClient = new ServiceBusClient(connectionString);
 
-const queueName = "queue001";
-const sbClient = new ServiceBusClient(connectionString);
-const sender = sbClient.createSender(queueName);
+async function sendMessage(queueName){
+    try
+    {
+        const sender = serviceBusClient.createSender(queueName);
+        const message = {
+            body: "Hello, from Node to Topic.", 
+            label: "greeting", 
+            useProperties: { priority: 1}
+        };
 
-async function sendMessage(){
-
-    // create an array of messages
-    const messages = [
-        {body: "Hello, this is first message."},
-        {body: "Hi, this is second message."}
-    ];
-
-    // send messages - individual messages will be created in queue.
-    await sender.sendMessages(messages);
+        //send message to queue
+        await sender.sendMessages(message);
+        await sender.close();
+    }
+    catch(err){
+        console.log(err);
+    }
+    finally {
+        await serviceBusClient.close();
+    }
 }
 
-sendMessage()
-    .then(() => {
-        return sender.close();
-    })
-    .then(() => {
-        return sbClient.close();
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+await sendMessage("queue001");
