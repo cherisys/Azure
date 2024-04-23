@@ -1,31 +1,32 @@
-const {ServiceBusClient} = require("@azure/service-bus");
+const { ServiceBusClient } = require("@azure/service-bus");
+
 const connectionString = ""
+const serviceBusClient = new ServiceBusClient(connectionString);
 
-const queueName = "queue001";
-const sbClient = new ServiceBusClient(connectionString);
-const receiver = sbClient.createReceiver(queueName);
+async function receiveMessages(queueName){
+    try
+    {
+        const receiver = serviceBusClient.createReceiver(queueName);
+        // receive a batch of 2 messages and set peek lock
+        const receivedMessages = await receiver.receiveMessages(2, {maxWaitTimeInMs: 3000});
+        // process received messages
+        for (let i=0; i<receivedMessages.length; i++) {
 
-async function receiveMessage(){
-
-    // subscribe to messages from queue
-    receiver.subscribe({
-        processMessage: async (message) => {
-            //process each message
-            console.log(message.body);
-        },
-        processError: async (err) => {
-            console.log(err);
+            // do something with message
+            console.log(receivedMessages[i]);
+            // complete the message after processing
+            await receiver.completeMessage(message);
         }
-    })
+
+        await receiver.close();
+    }
+    catch(err){
+        console.log(err);
+    }
+    finally {
+        
+        await serviceBusClient.close();
+    }
 }
 
-receiveMessage()
-    .then(() => {
-        return receiver.close();
-    })
-    .then(() => {
-        return sbClient.close();
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+await receiveMessages("queue001");
